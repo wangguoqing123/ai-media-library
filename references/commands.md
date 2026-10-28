@@ -23,7 +23,7 @@ python3 "SKILL/scripts/server.py" --root "ROOT" --port 0
 python3 "SKILL/scripts/library.py" material-add --root "ROOT"
 ```
 
-标准输入包含真实 `url`、`title`、`author`、`category`、`source_content`、`learning_point`、`ai_summary`、`read_status`。同一作品合并，不重复添加。`source_content` 是提取原文，`description` 是平台正文，`getnote_summary` 是服务摘要，`ai_summary` 是当前 AI 归纳；不因缺项清空已有原文。
+标准输入包含真实 `url`、`title`、`author`、`category`、`source_content`、`learning_point`、`ai_summary`、`read_status`。同一作品合并，不重复添加。`title` 只保存已核实原题；`getnote_title` 是 Get笔记生成标题，不能混用。`source_content` 是提取原文，`description` 是平台正文，`getnote_summary` 是服务摘要，`ai_summary` 是当前 AI 归纳；不因缺项清空已有原文。需要补齐元资料用 collect --metadata，计入预算。
 
 页面“录入参考”支持手动添加，相同链接更新记录；只有链接标待提取，再让 AI 采集。
 
@@ -54,3 +54,5 @@ python3 "SKILL/scripts/library.py" status --root "ROOT"
 数据库为 `内容库.sqlite3`，导出目录有两个库的 Markdown 和 JSON。导出是可重建副本，直接编辑不会回写数据库；修改用页面或 AI 命令。备份时先停止服务再复制整个用户库，不混入凭证。
 
 本关统一提交两个库截图或可查看的资料，及一次“真实素材→自己的选题”示例。验收来源可回看、内容可读、选题有依据、状态能更新、关掉重开仍保存。未配置/未采集/缺少转写/未做测试都明确标注，不新增卡片式作业名称。
+
+工作台分别显示 Get笔记、TikHub 最近实测结果，每条素材也保留分工具结果。接口失败不再借用旧原文显示通过；缺少原题、封面或口播时保留待补状态。

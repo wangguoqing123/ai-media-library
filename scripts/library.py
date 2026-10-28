@@ -11,7 +11,7 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
 
-VERSION = "0.1.1"
+VERSION = "0.1.2"
 KINDS = ("互动贴", "起号视频", "商单类视频")
 STATUSES = ("待制作", "制作中", "已发布", "暂缓")
 
@@ -53,6 +53,12 @@ def source_id(url):
 
 def clean(value):
     return re.sub(r"[\W_]+", "", unicodedata.normalize("NFKC", str(value)).lower())
+
+
+def original_title(record):
+    """Do not label a generated or legacy title as a source-platform title."""
+    verified = record.get("original_title_verified") is True or record.get("title_source") in ("manual", "share_text", "tikhub")
+    return record.get("title", "") if verified else ""
 
 
 class Library:
@@ -106,6 +112,9 @@ class Library:
         atomic_json(self.root / "账号方向.json", data)
         return data
 
+    def services(self):
+        return {name: self.get("jobs", "service:" + name) or {"status": "未测试"} for name in ("getnote", "tikhub")}
+
     def material(self, record, manual=False):
         key = source_id(record.get("url", ""))
         if record.get("note_id"):
@@ -119,6 +128,12 @@ class Library:
         for k, v in record.items():
             if k in ("id", "created_at", "updated_at"):
                 continue
+            if k == "title" and not manual and original_title(old) and old.get("title_source") in ("manual", "share_text"):
+                if v and v != old.get("title"):
+                    doc["platform_title"] = v
+                continue
+            if k in ("title_source", "original_title_verified") and not manual and original_title(old) and (not record.get("title") or old.get("title_source") in ("manual", "share_text")):
+                continue
             if not manual and (k in protected and old.get(k) or k == "source_content" and old.get(k)):
                 continue
             if k == "issues" and isinstance(v, list):
@@ -127,11 +142,18 @@ class Library:
             if v is not None and v != "" and v != [] and v != {}:
                 doc[k] = v
         doc.update(id=key, created_at=old.get("created_at", now()), updated_at=now())
+        if manual and record.get("title") and "title_source" not in record:
+            doc.update(title_source="manual", original_title_verified=True)
+        elif record.get("title_source") == "getnote":
+            # Compatibility for older importers; keep their title as a generated label.
+            doc["getnote_title"] = record.get("title", "")
+            doc["title"] = old.get("title", "") if original_title(old) else ""
+            doc["original_title_verified"] = bool(original_title(old))
         doc.setdefault("category", "待分类")
         doc.setdefault("read_status", "未读")
         doc.setdefault("provider", "手动录入")
         doc.setdefault("extraction_status", "待核验" if doc.get("source_content") or doc.get("description") else "待提取")
-        if old.get("source_content") and not record.get("source_content"):
+        if old.get("source_content") and not record.get("source_content") and not manual and "provider_checks" not in record:
             doc["extraction_status"] = old.get("extraction_status", "待核验")
         self.put("materials", key, doc)
         return doc
@@ -181,13 +203,13 @@ class Library:
     def export(self):
         output = self.root / "导出"
         output.mkdir(exist_ok=True)
-        state = {"config": self.config(), "materials": self.all("materials"), "topics": self.all("topics")}
+        state = {"config": self.config(), "services": self.services(), "materials": self.all("materials"), "topics": self.all("topics")}
         atomic_json(output / "内容库.json", state)
         lines = ["# 爆款素材库", "", "原始内容与 AI 归纳分开保存。互动数据是采集时快照；缺失不等于零。", ""]
         for m in state["materials"]:
-            lines += ["## " + m.get("title", "待补标题"), "", "- ID：" + m["id"], "- 分类：" + m.get("category", "待分类"),
+            lines += ["## " + (original_title(m) or "原帖标题待补"), "", "- Get笔记生成标题：" + m.get("getnote_title", "无"), "- ID：" + m["id"], "- 分类：" + m.get("category", "待分类"),
                       "- 作者：" + m.get("author", "待核实"), "- 来源：" + m["url"], "- 提取状态：" + m["extraction_status"],
-                      "- 指标快照：" + json.dumps(m.get("metrics", {}), ensure_ascii=False), "", "### 原始内容", "",
+                      "- 工具检查：" + json.dumps(m.get("provider_checks", {}), ensure_ascii=False), "- 指标快照：" + json.dumps(m.get("metrics", {}), ensure_ascii=False), "", "### 原始内容", "",
                       m.get("source_content", m.get("description", "待提取")), "", "### AI 归纳与借鉴点", "",
                       m.get("ai_summary", "未归纳"), m.get("learning_point", ""), ""]
         (output / "爆款素材库.md").write_text("\n".join(lines), encoding="utf-8")

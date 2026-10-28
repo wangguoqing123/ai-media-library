@@ -44,7 +44,7 @@ def serve(root, port=0):
                 return self.send({"error": "未找到"}, 404)
             db = Library(root)
             try:
-                self.send({"config": db.config(), "materials": db.all("materials"), "topics": db.all("topics")})
+                self.send({"config": db.config(), "services": db.services(), "materials": db.all("materials"), "topics": db.all("topics")})
             finally:
                 db.close()
 

@@ -5,10 +5,10 @@
 ## 检查
 
 ```bash
-python3 "SKILL/scripts/providers.py" doctor
+python3 "SKILL/scripts/providers.py" doctor --root "ROOT"
 ```
 
-只显示是否安装、有无本地授权/凭证，不输出密钥；这不等于远端连接成功。两个服务分开记录，不跨项目搜其他人的私密配置。
+分别显示安装、本地授权/凭证和最近真实测试，不输出密钥。`collection_ready` 与 `backup_ready` 分开，不以“有原文”代替备用通过。未建库时可不带 --root，只做本地检查。不跨项目搜其他人的私密配置。
 
 ## Get笔记：默认提取
 
@@ -53,7 +53,7 @@ python3 "SKILL/scripts/providers.py" configure-tikhub
 python3 "SKILL/scripts/providers.py" collect --root "ROOT" --provider tikhub --url "实际作品链接"
 ```
 
-视频可能需要图文详情、视频详情两次请求。返回的推荐作品必须过滤，只取目标 ID 一致的原作品。检查正文、封面/图片、指标、视频地址后才记录备用可用。
+默认先取笔记正文与元资料，一次请求；明确需要视频地址时加 --video-url，才额外请求视频详情。返回的推荐作品必须过滤，只取目标 ID 一致的原作品。检查正文、封面/图片、指标、视频地址后才记录备用可用。
 
 依据：[图文详情](https://docs.tikhub.io/420136391e0)、[视频详情](https://docs.tikhub.io/420136392e0)、[计费与限制](https://tikhub.io/zh/faq)。错误 ID 也可能计费，不自动无限重试。核对：2026-10-28。
 
@@ -70,4 +70,16 @@ python3 "SKILL/scripts/providers.py" discover --root "ROOT" --account "实际主
 
 发现只返回候选，未自动入库。AI按方向筛选，保留项逐条交 collect。本版只发现第一页；用户要求全量时明确未覆盖，不宣称全部同步，可继续处理用户提供的下一批链接。
 
+## 标题、缺失资料与失败
+
+Get笔记可能为作品另起标题，因此 `getnote_title` 只是生成标签。优先保留完整分享文案中的原题；只有链接且原题缺失时，程序会在已启用的 TikHub 预算内补取。没有取得原题则标待补，不能采用生成标签。批量仍按本轮总预算执行。
+
+需要补齐作者、封面、指标时，在 collect 后加 `--metadata`。Get原文不重复创建；只补资料，原题来源在 `title_source` 中记录。工作台里的“最近实测”是最后一次请求记录，不承诺凭证永久有效。
+
+collect 返回 `operation_success`（本次请求的步骤是否取得结果）、`result`（success/partial/failed/cached）、分工具 `provider_checks` 和缺失项。TikHub 单独测试失败，即使库里有旧原文也返回 `ok:false`。Get失败后 TikHub 可取得正文和元资料，但口播可能仍缺失，整体标部分取得，备用检查可以单独通过。
+
+403若是HTML入口拒绝，先检查当前版本和网络，不直接要求用户充值。本版以明确的 `ai-media-library/版本` 客户端标识调用官方接口，不伪装为浏览器，也不自动反复请求。需要独立测试目录时可用 `AI_MEDIA_LIBRARY_CREDENTIALS` 指向个人私密凭证文件，不更改 HOME 或作者全局配置。
+
 入库后完整读每条原文、分清正文/图片文字/口播是否完整，写模板分类、借鉴点和 AI 归纳。通过 material-add 更新 `category`、`learning_point`、`ai_summary`；读完原文才标 `read_status: 已读`，只读摘要不能标。七类视频模板仅供参考，互动贴另列，新的模板可以增加。不得以补齐为名编写原文或指标。
+
+Get笔记重复保存使用与本库和实际URL匹配的稳定请求标识，避免不同分享链接共用旧标识而冲突。遇到幂等冲突先核对已存在的条目，不盲目换标识重建。
