@@ -16,11 +16,11 @@ Skill 在仓库根目录，标识为 ai-media-library。保留其他已有 Skill
 安装后告诉我如何开始使用；如果已经安装，先核对版本和本地改动，再处理更新。
 ```
 
-也可以下载 [通用安装包](https://github.com/wangguoqing123/ai-media-library/raw/refs/heads/main/dist/ai-media-library-bundle.zip)，解压后让 AI 先执行 `python3 install.py --check`，通过后执行 `python3 install.py`。默认安装到当前用户的 Codex skills 目录，已有同名目录不会覆盖。下次会话即可识别，未识别时重新打开会话。
+也可以下载 [通用安装包](https://github.com/wangguoqing123/ai-media-library/raw/b4745bb6cae9d4e421950bf80835a47d3acc02b4/dist/ai-media-library-bundle.zip)，解压后让 AI 先执行 `python3 install.py --check`，通过后执行 `python3 install.py`。默认安装到当前用户的 Codex skills 目录，已有同名目录不会覆盖。下次会话即可识别，未识别时重新打开会话。
 
 ### WorkBuddy
 
-下载 [WorkBuddy 安装包](https://github.com/wangguoqing123/ai-media-library/raw/refs/heads/main/dist/ai-media-library-workbuddy.zip)，在 WorkBuddy 的技能管理中导入 ZIP。安装后调用本 Skill；未识别时重启 WorkBuddy。
+下载 [WorkBuddy 安装包](https://github.com/wangguoqing123/ai-media-library/raw/b4745bb6cae9d4e421950bf80835a47d3acc02b4/dist/ai-media-library-workbuddy.zip)，在 WorkBuddy 的技能管理中导入 ZIP。安装后调用本 Skill；未识别时重启 WorkBuddy。
 
 ## 开始搭建
 
