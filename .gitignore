@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+.env*
+credentials.json
+内容库.sqlite3*
+演示内容库/
