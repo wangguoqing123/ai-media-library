@@ -1,81 +1,63 @@
 # 小红书爆款素材+选题工作台搭建
 
-让 AI 带你配置 Get笔记和 TikHub，在自己的电脑上搭建爆款素材库和选题库，再用它们持续创作小红书内容。
+让 Codex 或 WorkBuddy 在自己的文件夹搭建可扩展的本地内容工作台，跑通“收集参考→扩展选题→自己选择”。
 
-**版本：v0.1.2** · Skill 标识：`ai-media-library`
+**v0.2.0** · Skill标识 `ai-media-library`
 
 ## 安装
 
-### Codex
-
-把下面这段话复制给 Codex：
+**Codex**：把这段话发给它：
 
 ```text
-请从 https://github.com/wangguoqing123/ai-media-library 安装「小红书爆款素材+选题工作台搭建」Skill。
-Skill 在仓库根目录，标识为 ai-media-library。保留其他已有 Skill。
-安装后告诉我如何开始使用；如果已经安装，先核对版本和本地改动，再处理更新。
+从 https://github.com/wangguoqing123/ai-media-library 安装「小红书爆款素材+选题工作台搭建」。
+Skill在仓库根目录，标识ai-media-library。保留其他Skill；已安装先核对版本与本地改动，再处理更新。
 ```
 
-也可以下载 [通用安装包](https://github.com/wangguoqing123/ai-media-library/raw/v0.1.2/dist/ai-media-library-bundle.zip)，解压后让 AI 先执行 `python3 install.py --check`，通过后执行 `python3 install.py`。默认安装到当前用户的 Codex skills 目录，已有同名目录不会覆盖。下次会话即可识别，未识别时重新打开会话。
+也可下载[通用安装包](https://github.com/wangguoqing123/ai-media-library/raw/v0.2.0/dist/ai-media-library-bundle.zip)，解压后让AI先执行 `python3 install.py --check`，再安装。已有同名Skill会拒绝覆盖，避免丢失本地修改。
 
-### WorkBuddy
+**WorkBuddy**：下载[WorkBuddy安装包](https://github.com/wangguoqing123/ai-media-library/raw/v0.2.0/dist/ai-media-library-workbuddy.zip)，在技能管理导入ZIP，调用本Skill。安装完成后重新打开会话。
 
-下载 [WorkBuddy 安装包](https://github.com/wangguoqing123/ai-media-library/raw/v0.1.2/dist/ai-media-library-workbuddy.zip)，在 WorkBuddy 的技能管理中导入 ZIP。安装后调用本 Skill；未识别时重启 WorkBuddy。
+## 第一句话
 
-## 开始搭建
-
-在电脑上新建一个自己的空文件夹，用 Codex 或 WorkBuddy 打开，对 AI 说：
+用Codex或WorkBuddy打开自己的空文件夹，说：
 
 ```text
-使用「小红书爆款素材+选题工作台搭建」，在当前文件夹搭建我自己的爆款素材库和选题库。
-先读取我已确认的账号方向；没有的信息再逐步问我，不要编造。
-带我检查和配置 Get笔记、TikHub。默认 Get笔记提取，TikHub 备用。
-不要让我把凭证发到聊天里。先用一条真实作品跑通，再扩展选题、让我选择后入库。
-最后打开工作台，教我关闭后如何再打开。
+使用「小红书爆款素材+选题工作台搭建」，在这里搭建我的工作台。
+沿用我确认的账号方向，缺失信息逐步问我。
+连接当前搭建平台的模型，帮助配置Get笔记和TikHub，凭证不要发聊天。
+先收一条真实链接，再生成一句话选题，教我确认和重开工作台。
 ```
 
-本机需要 Python 3.9+。没有 Python、Node/npm 或 Get笔记 CLI 时，AI 会按系统指导安装。安装 Skill 不代表外部服务已经授权，仍需要使用自己的账号配置并完成实际测试。
+本机Python3.9+、标准库运行。程序复制到自己的 app/，资料在自己的 data/；已有库可原地沿用。以后让AI在 app/ 增加页面和功能，保留数据。
 
-## 配置两个工具
+## 四个页面
 
-**Get笔记：默认提取原文。** AI 先检查现有安装和登录状态。缺少时按 [官方说明](https://github.com/iswalle/getnote-cli) 安装：
+| 页面 | 怎么用 |
+| --- | --- |
+| 爆款库 | 只贴作品URL录入，或按关键词搜索采集；保留封面、原题、作者、原文、数据和来源，可按批次筛选 |
+| 选题库 | 素材一键加入或AI扩展，每题一句话，分待选/已确认，可编辑和移回，来源不丢 |
+| 采集批次 | 记录每次关键词/链接、新增、复用、部分、失败和请求数；最近任务能看完整生成提示词 |
+| 设置 | 账号方向、平台模型连接、关键词筛选、请求上限、完整主提示词；支持恢复默认 |
 
-```bash
-npm install -g @getnote/cli
-getnote auth login
-```
+## 配置采集工具
 
-在浏览器完成本人账号授权，已有有效授权直接沿用。官方 OpenAPI 需要会员权限；由用户自行决定开通。登录后还要用一条真实小红书链接测试，不能只凭登录成功判断内容可提取。
+**Get笔记默认提取**：AI先查现有安装和授权，缺少时按[官方仓库](https://github.com/iswalle/getnote-cli)安装CLI，运行 `getnote auth login`，本人在浏览器授权。接口需要会员权限，登录后仍要测试真实链接。
 
-**TikHub：备用资料提取，也负责按关键词或对标账号发现新作品。** 到 [TikHub 官网](https://tikhub.io/) 登录，查看当前价格、余额和 API 凭证。请 AI 找到安装后的本 Skill 路径，给你一条可直接执行的本地配置命令。在自己的终端隐藏输入凭证，不能贴到聊天：
+**TikHub备用及关键词发现**：到[TikHub](https://tikhub.io/)查看账户价格、余额和凭证。AI给出本机隐藏输入配置命令，不把密钥贴进聊天。确定本批请求上限后才启用；搜索与补资料共用上限，默认首次建议最多3条/3次，只查第一页。
 
-```bash
-python3 scripts/providers.py configure-tikhub
-```
+详细步骤见[配置教程](references/setup-and-collection.md)。原帖正文、图片文字和口播不同；缺口播标待补，不用摘要补原文。原题与Get生成标题分开，重复作品复用并记录新批次。
 
-这条相对命令在 Skill 目录里运行；AI 应替新手换成实际绝对路径。随后确定每次调用上限，再启用并测试备用。TikHub 按请求计费；默认一次请求取得正文和元资料，需要视频地址时用 --video-url，才额外请求。详细指导在 [配置教程](references/setup-and-collection.md)。
+## 模型与提示词
 
-## 平时怎么用
+Codex构建→本机Codex引擎；WorkBuddy构建→本机WorkBuddy/对应CLI授权环境，沿用平台默认模型和额度。无需额外模型API密钥；不是直接复用当前聊天。先测试真实响应，失败显示原因，不自动换平台或用固定题目代替。
 
-- “收集这几个作品链接，保留原文和来源，按模板分类。”
-- “看看这个对标账号最近有哪些值得参考的内容，先查第一页。”
-- “完整阅读新素材，给我扩展几个适合自己账号的选题，我选好再入库。”
-- “这个选题开始制作了，更新为制作中。”
-- “这条已经发布，补上作品链接。”
-- “打开我的工作台。”
+主提示词在设置里完整公开，可改、可恢复，保存后生效。每次生成还会附加账号方向、所选原文、已有题目与资料边界，并保存本次完整提交内容。候选只进待选，不自动发布。详见[模型连接](references/model-connection.md)、[选题规则](references/topics.md)。
 
-工作台分别显示 Get笔记和 TikHub 的最近实测状态，失败不会借用旧原文显示通过。支持查看原始内容与 AI 归纳、分类搜索、选题依据和准备材料、更新制作进度，数据保存在自己的文件夹里。采集和选题分析由当前 AI 助手执行，页面不会自行调用另一个大模型，也不会自动发布。
+## 验证范围
 
-## 提取范围和真实状态
+- 41项回归检查通过：包括原文/摘要分离、标题保真、备用切换、来源校验、批次去重、提示词快照、模型失败不换平台、空目录搭建、旧库迁移、设置和重开保存。
+- 新安装包独立搭建、Codex真实连接与3条选题生成、链接复用新增批次（0次付费请求）、待选/确认页面操作均已通过；Get笔记/TikHub采集沿用已实测的v0.1.2核心，原型阶段真实关键词采集、链接复用、Codex生成也已验证。此版本回归不额外扩大付费采集。
+- WorkBuddy已接入本机引擎，但本机响应测试未取得可验证JSON，因此不声称真实生成已通过。首次授权、不同版本和Windows仍需在本人设备测试；错误保留，不自动改用Codex。
+- 包内没有作者账号、凭证、演示数据库或私有工作台。安装不代表外部服务已授权。
 
-- Get笔记原文、服务摘要和 AI 归纳分开保存；原帖标题与 Get生成标题也分开。只有链接时，在已配置的 TikHub 预算内补齐原题；没拿到则显示待补。同一作品按 ID 去重。
-- TikHub 能取得笔记正文、封面/图片、互动数据和视频地址等，但不提供口播转写。口播稿、图片文字缺失时明确标待补，不用正文冒充。
-- 关键词/账号发现目前只查第一页；不宣称覆盖全部历史作品。付费调用受用户设置的上限约束。
-- 22项回归检查通过；Get笔记1.8.2真实链接采集、TikHub独立提取、Get不可用后的真实备用切换和关键词发现均已实测通过。初次注册扫码授权借用现有账号，Windows与WorkBuddy实际设备仍需各自验证。
-- 安装包不包含作者凭证、登录状态、私有工作台或演示数据库。
-
-## 目录
-
-`SKILL.md` 是入口；`references/` 是配置、操作、选题规则和课程真实案例；`scripts/` 提供建库、提取和本机页面；`assets/` 是页面模板；`dist/` 提供安装包和 SHA-256。
-
-[安装与使用说明](dist/安装与使用说明.md) · [详细命令](references/commands.md)
+[安装与使用说明](dist/安装与使用说明.md) · [搭建与重开](references/commands.md)

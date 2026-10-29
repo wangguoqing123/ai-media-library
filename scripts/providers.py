@@ -363,6 +363,7 @@ def collect(lib, url, provider="auto", existing_getnote_id=None, retry=False, ma
 
 
 def main():
+    from store import Store
     p = argparse.ArgumentParser(description="Get笔记优先，TikHub 备用；配置和提取")
     p.add_argument("command", choices=["doctor", "configure-tikhub", "collect", "discover"])
     p.add_argument("--root")
@@ -381,7 +382,7 @@ def main():
     lib = None
     try:
         if args.command == "doctor":
-            lib = Library(args.root) if args.root else None
+            lib = Store(args.root) if args.root else None
             result = doctor(lib)
         elif args.command == "configure-tikhub":
             if not sys.stdin.isatty():
@@ -401,7 +402,7 @@ def main():
         else:
             if not args.root:
                 raise ValueError("需要 --root 指定自己的内容库")
-            lib = Library(args.root)
+            lib = Store(args.root)
             if args.command == "collect":
                 text = sys.stdin.read() if args.stdin else args.url
                 if not text:

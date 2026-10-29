@@ -1,6 +1,6 @@
 # 工具配置与收集
 
-替换 SKILL、ROOT 为实际绝对路径。Python 3.9+，不需要购买数据库或配置新的 AI API；语言分析由当前 AI 助手完成。
+SKILL 是安装后的 Skill 目录；本页 ROOT 专指 init 返回的实际 DATA 资料目录（不是外层 PROJECT）。执行时换成实际绝对路径。Python 3.9+，不需要购买数据库或配置新的 AI API；页面的一键生成调用搭建平台本机模型，另见 model-connection.md。
 
 ## 检查
 
@@ -31,7 +31,7 @@ python3 "SKILL/scripts/providers.py" collect --root "ROOT" --stdin
 
 保存是异步的，最多等待240秒；超时可能仍在服务端处理，不自动重复创建。先检查任务/条目，已有结果以 note ID 回读。`--retry` 仅在核对先前状态后，按用户重试要求使用。
 
-安装/会员/授权依据：[getnote-cli 官方仓库](https://github.com/iswalle/getnote-cli)。以已安装版本 help 与当前官方文档为准。核对：2026-10-28。
+安装/会员/授权依据：[getnote-cli 官方仓库](https://github.com/iswalle/getnote-cli)。以已安装版本 help 与当前官方文档为准。核对：2026-10-29。
 
 ## TikHub：备用，也负责发现链接
 
@@ -46,7 +46,7 @@ python3 "SKILL/scripts/providers.py" configure-tikhub
 
 保存到当前用户 `~/.config/ai-media-library/credentials.json`，Unix权限600；也兼容已有 `TIKHUB_API_TOKEN` / `TIKHUB_API_KEY` 环境变量。Windows还需核对用户目录 ACL，不能声称等同于 Unix600。值不能进入命令参数、公开配置或安装包。
 
-3. 与用户确定本轮最多调用几次。首次建议3次，但不是固定规则。用 library configure 写入 `max_calls` 与 `tikhub_enabled: true` 后启用。后续按已确认范围执行，不逐条询问；未启用不调用。
+3. 与用户确定本轮最多调用几次。首次建议3次，但不是固定规则。用 workbench configure（--root PROJECT）写入 `max_calls` 与 `tikhub_enabled: true` 后启用。后续按已确认范围执行，不逐条询问；未启用不调用。
 4. 单独验证备用：
 
 ```bash
@@ -55,7 +55,7 @@ python3 "SKILL/scripts/providers.py" collect --root "ROOT" --provider tikhub --u
 
 默认先取笔记正文与元资料，一次请求；明确需要视频地址时加 --video-url，才额外请求视频详情。返回的推荐作品必须过滤，只取目标 ID 一致的原作品。检查正文、封面/图片、指标、视频地址后才记录备用可用。
 
-依据：[图文详情](https://docs.tikhub.io/420136391e0)、[视频详情](https://docs.tikhub.io/420136392e0)、[计费与限制](https://tikhub.io/zh/faq)。错误 ID 也可能计费，不自动无限重试。核对：2026-10-28。
+依据：[图文详情](https://docs.tikhub.io/420136391e0)、[视频详情](https://docs.tikhub.io/420136392e0)、[计费与限制](https://tikhub.io/zh/faq)。错误 ID 也可能计费，不自动无限重试。核对：2026-10-29。
 
 ## 日常收集
 
@@ -68,7 +68,7 @@ python3 "SKILL/scripts/providers.py" discover --root "ROOT" --query "AI作图" -
 python3 "SKILL/scripts/providers.py" discover --root "ROOT" --account "实际主页链接" --limit 3
 ```
 
-发现只返回候选，未自动入库。AI按方向筛选，保留项逐条交 collect。本版只发现第一页；用户要求全量时明确未覆盖，不宣称全部同步，可继续处理用户提供的下一批链接。
+上面的命令发现只返回候选，未自动入库。网页“关键词采集”会按设置搜索并提取，自动记录采集批次。AI按方向筛选，保留项逐条交 collect。本版只发现第一页；用户要求全量时明确未覆盖，不宣称全部同步，可继续处理用户提供的下一批链接。
 
 ## 标题、缺失资料与失败
 
@@ -79,6 +79,8 @@ Get笔记可能为作品另起标题，因此 `getnote_title` 只是生成标签
 collect 返回 `operation_success`（本次请求的步骤是否取得结果）、`result`（success/partial/failed/cached）、分工具 `provider_checks` 和缺失项。TikHub 单独测试失败，即使库里有旧原文也返回 `ok:false`。Get失败后 TikHub 可取得正文和元资料，但口播可能仍缺失，整体标部分取得，备用检查可以单独通过。
 
 403若是HTML入口拒绝，先检查当前版本和网络，不直接要求用户充值。本版以明确的 `ai-media-library/版本` 客户端标识调用官方接口，不伪装为浏览器，也不自动反复请求。需要独立测试目录时可用 `AI_MEDIA_LIBRARY_CREDENTIALS` 指向个人私密凭证文件，不更改 HOME 或作者全局配置。
+
+页面点击“添加链接”只需粘贴URL；后台默认Get提取，必要时在预算内补TikHub资料，并记录批次。命令行只提取一条时仍可用上面 providers collect；用网页采集才自动建批次。
 
 入库后完整读每条原文、分清正文/图片文字/口播是否完整，写模板分类、借鉴点和 AI 归纳。通过 material-add 更新 `category`、`learning_point`、`ai_summary`；读完原文才标 `read_status: 已读`，只读摘要不能标。七类视频模板仅供参考，互动贴另列，新的模板可以增加。不得以补齐为名编写原文或指标。
 

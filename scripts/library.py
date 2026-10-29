@@ -11,7 +11,7 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import urlparse
 
-VERSION = "0.1.2"
+VERSION = "0.2.0"
 KINDS = ("互动贴", "起号视频", "商单类视频")
 STATUSES = ("待制作", "制作中", "已发布", "暂缓")
 
@@ -235,7 +235,7 @@ def initialize(root):
     if root.exists() and any(root.iterdir()):
         raise ValueError("请选择空文件夹；不会覆盖已有资料")
     root.mkdir(parents=True, exist_ok=True)
-    atomic_json(marker, {"schema": "ai-media-library/v1", "version": VERSION, "account_name": "", "audience": "", "direction": "", "formats": [], "known_tools": [], "keywords": [], "accounts": [], "min_likes": 0, "max_calls": 5, "tikhub_enabled": False})
+    atomic_json(marker, {"schema": "ai-media-library/v1", "version": VERSION, "account_name": "", "audience": "", "direction": "", "formats": [], "known_tools": [], "keywords": [], "accounts": [], "min_likes": 0, "max_calls": 3, "tikhub_enabled": False})
     (root / ".gitignore").write_text("内容库.sqlite3*\n导出/\n凭证.json\n", encoding="utf-8")
     lib = Library(root)
     lib.export()
@@ -244,6 +244,7 @@ def initialize(root):
 
 
 def main():
+    from store import Store
     p = argparse.ArgumentParser(description="建立和维护自己的爆款素材库、选题库")
     p.add_argument("command", choices=["init", "status", "context", "export", "configure", "material-add", "topics-import", "topic-update"])
     p.add_argument("--root", required=True)
@@ -254,7 +255,7 @@ def main():
         if args.command == "init":
             result = initialize(args.root)
         else:
-            lib = Library(args.root)
+            lib = Store(args.root)
             if args.command == "status":
                 result = {"root": str(lib.root), "materials": len(lib.all("materials")), "topics": len(lib.all("topics"))}
             elif args.command == "context":

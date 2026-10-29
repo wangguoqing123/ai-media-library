@@ -5,3 +5,7 @@ __pycache__/
 credentials.json
 内容库.sqlite3*
 演示内容库/
+data/
+.ai/
+程序备份/
+.workbench.json

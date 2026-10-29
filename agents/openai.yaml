@@ -1,4 +1,4 @@
 interface:
   display_name: "小红书爆款素材+选题工作台搭建"
-  short_description: "从工具配置到爆款收集、选题扩展和制作进度，搭建并持续使用自己的内容库"
-  default_prompt: "使用 $ai-media-library，带我配置 Get笔记和 TikHub，搭建自己的爆款素材库和选题库。"
+  short_description: "搭建左侧导航工作台，采集爆款、记录批次，用当前平台模型扩展一句话选题"
+  default_prompt: "使用 $ai-media-library，在我的文件夹搭建内容工作台，配置 Get笔记与 TikHub，并连接当前搭建平台的模型，跑通素材收集到一句话选题。"
